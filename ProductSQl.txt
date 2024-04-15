@@ -1,0 +1,229 @@
+-- Create the products table
+CREATE TABLE products (
+    pid INTEGER PRIMARY KEY,
+    name TEXT,
+    category TEXT,
+    price REAL
+);
+
+-- Insert 15 sample entries
+INSERT INTO products (pid, name, category, price) VALUES
+(201, 'Laptop', 'Electronics', 1200),
+(202, 'Smartphone', 'Electronics', 800),
+(203, 'Headphones', 'Electronics', 100),
+(204, 'T-shirt', 'Clothing', 25),
+(205, 'Jeans', 'Clothing', 50),
+(206, 'Backpack', 'Accessories', 40),
+(207, 'Sunglasses', 'Accessories', 35),
+(208, 'Basketball', 'Sports', 30),
+(209, 'Football', 'Sports', 40),
+(210, 'Yoga Mat', 'Sports', 20),
+(211, 'Blender', 'Kitchen', 80),
+(212, 'Coffee Maker', 'Kitchen', 100),
+(213, 'Cutting Board', 'Kitchen', 20),
+(214, 'Fiction Book', 'Books', 15),
+(215, 'Notebook', 'Stationery', 7);
+
+
+-- Create the customers table
+CREATE TABLE customers (
+    cid INTEGER PRIMARY KEY,
+    name TEXT,
+    place TEXT,
+    phno TEXT
+);
+
+-- Insert sample entries starting with cid 101
+INSERT INTO customers (cid, name, place, phno) VALUES
+(101, 'John Doe', 'New York', '123-456-7890'),
+(102, 'Jane Smith', 'Los Angeles', '987-654-3210'),
+(103, 'Alice Johnson', 'Chicago', '555-123-4567'),
+(104, 'Bob Williams', 'Houston', '444-987-6543'),
+(105, 'Emily Brown', 'San Francisco', '777-888-9999'),
+(106, 'Michael Wilson', 'Miami', '333-222-1111'),
+(107, 'Emma Davis', 'Seattle', '666-555-4444'),
+(108, 'James Martinez', 'Atlanta', '888-777-6666'),
+(109, 'Olivia Anderson', 'Boston', '222-333-4444'),
+(110, 'William Taylor', 'Dallas', '999-888-7777'),
+(111, 'Sophia Garcia', 'Denver', '111-222-3333'),
+(112, 'Daniel Rodriguez', 'Phoenix', '444-555-6666'),
+(113, 'Isabella Hernandez', 'Philadelphia', '777-888-9999'),
+(114, 'Mason Lopez', 'San Diego', '333-444-5555'),
+(115, 'Ava Gonzalez', 'Austin', '666-777-8888');
+
+
+-- Create the transaction_table
+CREATE TABLE transactions (
+    tid INTEGER PRIMARY KEY,
+    cid INTEGER,
+    pid INTEGER,
+    qty INTEGER,
+    date DATE,
+    FOREIGN KEY (cid) REFERENCES customers(cid),
+    FOREIGN KEY (pid) REFERENCES products(pid)
+);
+
+-- Insert 20 sample records
+INSERT INTO transactions (tid, cid, pid, qty, date) VALUES
+(301, 101, 201, 2, '2024-04-01'),
+(302, 102, 202, 1, '2024-04-02'),
+(303, 103, 203, 3, '2024-04-03'),
+(304, 104, 204, 2, '2024-04-04'),
+(305, 105, 205, 1, '2024-04-05'),
+(306, 106, 206, 4, '2024-04-06'),
+(307, 107, 207, 1, '2024-04-07'),
+(308, 108, 208, 2, '2024-04-08'),
+(309, 109, 209, 1, '2024-04-09'),
+(310, 110, 210, 3, '2024-04-10'),
+(311, 111, 211, 2, '2024-04-11'),
+(312, 112, 212, 1, '2024-04-12'),
+(313, 113, 213, 4, '2024-04-13'),
+(314, 114, 214, 1, '2024-04-14'),
+(315, 115, 215, 2, '2024-04-15'),
+(316, 101, 202, 3, '2024-04-16'),
+(317, 102, 203, 1, '2024-04-17'),
+(318, 103, 204, 2, '2024-04-18'),
+(319, 104, 205, 1, '2024-04-19'),
+(320, 105, 206, 4, '2024-04-20');
+
+
+
+
+QUESTIONS--------------------
+
+1. Retrieve the names of all customers who have made transactions.
+select name from customers as c, transactions as t where c.cid=t.cid;
+2. Get the names and places of all customers along with the products they purchased.
+select c.name, c.place, p.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid= p.pid;
+3. List the transactions made by customers from 'New York'.
+select * from customers as c, transactions as t where c.cid=t.cid and place='New York';
+4. Display the names of customers who bought electronics.
+select c.name from customers as c, products as p,  transactions as t where c.cid=t.cid and p.pid=t.pid and p.category='Electronics';
+5. Show the names of customers along with the categories of products they purchased.
+select c.name, p.category from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid;
+6. Find the total number of transactions.
+select count(*) from transactions;
+7. Retrieve the names of customers who bought products with a price greater than $50.
+select c.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and p.price>50;
+8. Get the total quantity of each product sold.
+select p.name,sum(t.qty) from products as p, transactions as t where p.pid=t.pid group by p.name ;
+9. Display the names of customers who purchased more than one product.
+select c.name from customers as c where c.cid in(select t.cid from transactions as t group by t.cid having count(pid)>1);
+10. Show the names of customers along with the total price they spent on products.
+select c.name,sum(p.price*t.qty) as total_price from customers as c, transactions as t,products as p  where c.cid=t.cid and t.pid=p.pid group by c.cid;
+11. Find the names of customers who bought products in the 'Electronics' category.
+select c.name from customers as c, products as p, transactions as t where c.cid=t.cid and t.pid=p.pid and p.category='Electronics';
+12. List the products purchased by 'John Doe'.
+select p.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid  and c.name='John Doe';
+13. Show the names of customers who purchased products in the 'Sports' category.
+select c.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and p.category='Sports';
+14. Retrieve the names of customers who bought more than one product in the 'Electronics' category.
+select c.name from customers as c where c.cid in (select t.cid from transactions as t, products as p where t.pid=p.pid and p.category='Electronics' group by t.cid having count(*)>1);
+15. Get the names of customers along with the categories of products they purchased, ordered by customer name.
+select c.name, p.category from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid order by c.name;
+
+16. Show the names of customers along with the total quantity of products they purchased.
+select name, sum(t.qty) as total_quantity from customers as c,transactions as t where c.cid=t.cid group by c.name;
+17. Find the names of customers who bought products on April 4th, 2024.
+select name from customers as c, transactions as t where c.cid=t.cid and t.date='2024-04-04';
+18. Display the names of customers along with the total number of transactions they made.
+select c.name,count(*) as total_transaction from customers as c, transactions as t where c.cid=t.cid group by c.cid;
+
+19. List the names of customers who bought products on or after April 10th, 2024.
+select c.name from customers as c, transactions as t where c.cid=t.cid and t.date>='2024-04-10';
+
+20. Retrieve the names of customers along with the total price they spent, ordered by total price.
+select c.name,sum(t.qty*p.price) as total from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid group by c.name order by total;
+
+21. Show the names of customers along with the products they purchased, ordered by product category.
+select c.name,p.name from customers as c,transactions as t, products as p where c.cid=t.cid and t.pid=p.pid 
+order by p.category;
+22. Get the names of customers who purchased products priced between $20 and $50.
+select * from customers where customers.cid in (select t.cid  from products as p, transactions as t where p.pid=t.pid group by t.cid having sum(t.qty*p.price)>20 and sum(t.qty*p.price)<50); 
+23. Retrieve the names of customers along with the total quantity of products they purchased, ordered by quantity.
+select c.name,sum(t.qty) from customers as c, transactions as t where c.cid=t.cid group by c.name order by sum(t.qty);
+
+
+24. Display the names of customers who bought products in the 'Clothing' category or 'Accessories' category.
+select c.name from customers as c, transactions as t, products as p  where c.cid=t.cid and t.pid=p.pid and (p.category="Accessories" or p.category="Clothing");
+
+25. Find the names of customers along with the total number of transactions they made, excluding those from 'New York'.
+select c.name,count(t.tid) as total_transactions from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and c.place!="New York" group by c.cid;
+26. List the names of customers along with the total price they spent, excluding transactions made by 'John Doe'.
+select c.name,sum(t.qty*p.price) as total_spent from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and c.name!="John Doe" group by c.name;
+
+27. Show the names of customers who did not make any transactions.
+select c.name from customers as c where c.cid not in (select t.cid from transactions as t);
+
+28. Retrieve the names of customers along with the products they purchased, ordered by customer place.
+select c.name, p.name from customers as c, transactions  as t, products as p where c.cid=t.cid and t.pid=p.pid order by c.place;
+
+29. Get the names of customers who made transactions on April 6th, 2024, along with the products they purchased.
+select c.name, p.name  from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid= p.pid and t.date="2024-04-06";
+
+30. Display the names of customers along with the total quantity of products they purchased, excluding transactions made by 'Jane Smith'.
+select c.name,sum(t.qty) as total_quantity from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and c.name!="Jane Smith" group by c.name;
+31. Find the names of customers who bought products in the 'Kitchen' category and made more than one transaction.
+select c.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and p.category="Kitchen" group by  c.name having count(t.tid)>1;
+
+32. List the names of customers along with the products they purchased, excluding transactions made in 'Los Angeles'.
+select c.name, p.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and c.place!="Los Angeles";
+
+33. Retrieve the names of customers who made transactions on or before April 3rd, 2024, along with the products they purchased.
+select c.name, p.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and t.date<="2024-04-03";
+
+34. Show the names of customers along with the total price they spent, excluding transactions made by 'John Doe' and 'Jane Smith'.
+select c.name,sum(t.qty*p.price) as total_spent from customers as  c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid  and c.name not in("John Doe", "Jane Smith") group by c.name;
+
+35. Get the names of customers who made transactions on April 10th, 2024, along with the products they purchased, ordered by product price.
+select c.name,p.name from customers c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and date="2024-04-10" order by p.price;
+
+36. Display the names of customers who bought products in the 'Books' category or 'Stationery' category and made transactions on April 14th, 2024.
+select c.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid  and (p.category="Books" or p.category="Stationery") and date="2024-04-14";
+
+
+37. Find the names of customers along with the total quantity of products they purchased, excluding transactions made in 'Houston'.
+select c.name,sum(t.qty) as total_quantity from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and c.place!="Houston" group by c.name;
+
+38. List the names of customers along with the total number of transactions they made, excluding those from 'Chicago'.
+select c.name,count(*) as total_transaction from customers as c, transactions as t where c.cid=t.cid and c.name!="Chicago" group by c.name;
+
+39. Retrieve the names of customers who made transactions on or after April 5th, 2024, and bought products in the 'Sports' category.
+select c.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and date>="2024-04-05" and p.category="Sports";
+
+40. Show the names of customers along with the products they purchased, excluding transactions made in 'Miami' or 'Seattle'.
+select c.name,p.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and c.place not in ("Miami","Seattle");
+
+41. Get the names of customers who made transactions on April 11th, 2024, and bought products in the 'Clothing' category or 'Accessories' category.
+select c.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and (p.category="Clothing" or p.Category="Accessories") and t.date="2024-04-11";
+
+42. Display the names of customers who made transactions on or before April 7th, 2024, and bought products with a price greater than $30.
+select c.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and t.date<="2024-04-07" and p.price>30;
+
+43. Find the names of customers along with the total price they spent, excluding transactions made in 'Atlanta' or 'Boston'.
+select c.name,sum(t.qty*p.price) as total_price from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and c.place not in ("Atlanta", "Boston") group by c.name;
+
+44. List the names of customers along with the total quantity of products they purchased, ordered by quantity in descending order.
+select c.name, sum(t.qty) as total_quantity from customers as c, transactions as t where c.cid=t.cid group by c.name order by total_quantity desc ;
+
+45. Retrieve the names of customers who made transactions on or after April 12th, 2024, and bought products in the 'Electronics' category or 'Kitchen' category.
+select c.name from customers as c, transactions  as t, products as p where c.cid=t.cid and t.pid=p.pid and t.date>="2024-04-12" and p.category in ("Kitchen", "Electronics");
+
+46. Show the names of customers along with the products they purchased, excluding transactions made in 'San Francisco' and 'San Diego'.
+select c.name,p.name  from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and c.place not in("San Francisco", "San Diego") ;
+
+47. Get the names of customers who made transactions on April 15th, 2024, and bought products with a price less than or equal to $10.
+select c.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and date="2024-04-15" and p.price<=10;
+
+48. Display the names of customers who bought products in the 'Sports' category and made transactions on April 9th, 2024, along with the products they purchased.
+select c.name from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and p.category="Sports" and date="2024-04-09";
+
+49. Find the names of customers along with the total price they spent, excluding transactions made in 'Dallas' or 'Denver'.
+select c.name,(t.qty*p.price) as total_price from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and c.place not in ("Dallas","Denver") group by c.name ;
+
+50. List the names of customers along with the total number of transactions they made, excluding those from 'Austin' or 'Phoenix'.
+
+select c.name, count(t.tid) as total_transactions from customers as c, transactions as t, products as p where c.cid=t.cid and t.pid=p.pid and c.place not in("Austin","Phoenix") group by c.name;
+
+
+
